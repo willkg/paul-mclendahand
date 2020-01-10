@@ -25,7 +25,7 @@ def get_file(fn):
 setup(
     name="paul-mclendahand",
     version=get_version(),
-    description="TODO",
+    description="Tools for combining GitHub pull requests.",
     long_description=(get_file("README.rst") + "\n\n" + get_file("HISTORY.rst")),
     author="Will Kahn-Greene",
     author_email="willkg@mozilla.com",
@@ -37,7 +37,7 @@ setup(
     include_package_data=True,
     license="MPLv2",
     zip_safe=False,
-    keywords="TODO",
+    keywords="github pr",
     entry_points="""
     [console_scripts]
     pmac=paul_mclendahand.cmd_pmac:main

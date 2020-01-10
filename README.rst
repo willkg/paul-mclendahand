@@ -2,7 +2,7 @@
 paul-mclendahand
 ================
 
-paul-mclendahand combines pull requests into a single branch.
+Tools for combining GitHub pull requests.
 
 :Code:          https://github.com/willkg/paul-mclendahand
 :Issues:        https://github.com/willkg/paul-mclendahand/issues
