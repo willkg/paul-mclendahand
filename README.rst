@@ -25,6 +25,9 @@ Install from PyPI:
 Quick start
 ===========
 
+Configure git to fetch pull request references
+----------------------------------------------
+
 First, you need to have git configured to fetch pull request references. I have
 an additional ``fetch`` line in my remote for github.com. For example,
 this is what I have for socorro::
@@ -42,6 +45,26 @@ The line you need to add is the last one. Make sure to use the right remote::
 
 After adding that, when you do ``git pull``, it'll pull down all the references
 for pull requests. They'll be available as ``upstream/pr/PRNUM``.
+
+
+Configure pmac
+--------------
+
+pmac needs to know the GitHub user and GitHub project. You can do that using
+environment variables::
+
+   PMAC_GITHUB_USER=user
+   PMAC_GITHUB_PROJECT=project
+
+or by adding a section to the ``setup.cfg`` file::
+
+   [tools:pmac]
+   github_user=user
+   github_project=project
+
+
+Using pmac
+----------
 
 After you've configured git, then you can use ``pmac`` like this:
 
