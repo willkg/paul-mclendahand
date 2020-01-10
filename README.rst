@@ -92,3 +92,19 @@ After you've configured git, then you can use ``pmac`` like this:
        pmac prmsg
 
    to get a pull request message.
+
+
+Why does this project exist?
+============================
+
+Two main reasons.
+
+First, GitHub doesn't support combining pull requests. There is a forum post
+about it here:
+https://github.community/t5/How-to-use-Git-and-GitHub/Feature-Request-combine-pull-requests/td-p/27660
+
+Second, dependabot (also owned by GitHub) doesn't support grouping dependency
+updates into a single pull request. If you have 50 dependency updates, it
+creates 50 pull requests. I have a lot of projects and that makes monthly
+maintenance miserable. There's an issue for this:
+https://github.com/dependabot/feedback/issues/5
