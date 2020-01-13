@@ -18,6 +18,8 @@ prmsg           build a PR summary
 
 DEFAULT_CONFIG = {"github_user": "", "github_project": ""}
 
+COMMIT_MESSAGE_FILE = "CMTMSG"
+
 
 def get_config():
     """Generates configuration.
@@ -93,10 +95,15 @@ def subcommand_add(config, prs):
 
             data = data.splitlines()
             data[0] = data[0].strip() + " (from PR #%s)" % pr
-            with open("CMTMSG", "w") as fp:
-                fp.write("\n".join(data))
+            try:
+                with open(COMMIT_MESSAGE_FILE, "w") as fp:
+                    fp.write("\n".join(data))
 
-            run_cmd(["git", "commit", "--amend", "--file=CMTMSG"])
+                run_cmd(["git", "commit", "--amend", "--file=%s" % COMMIT_MESSAGE_FILE])
+            finally:
+                # Delete the file if it's there
+                if os.path.exists(COMMIT_MESSAGE_FILE):
+                    os.remove(COMMIT_MESSAGE_FILE)
 
     print(">>> Done.")
     print(">>> Log since master ...")
