@@ -75,7 +75,10 @@ def subcommand_add(config, args):
             for line in ret.stdout.decode("utf-8").splitlines()
         ]
         for commit_index, commit in enumerate(reversed(commits)):
-            print(">>> Cherry-picking %s from %s (%s/%s) ..." % (commit, pr, commit_index + 1, len(commits)))
+            print(
+                ">>> Cherry-picking %s from %s (%s/%s) ..."
+                % (commit, pr, commit_index + 1, len(commits))
+            )
             ret = run_cmd(["git", "log", "--format=%B", "-n", "1", commit])
             data = ret.stdout.decode("utf-8")
 
@@ -121,13 +124,9 @@ def subcommand_prmsg(config, args):
     if stdout:
         print("Update dependencies. This covers:")
         print("")
-        print(
-            "\n".join(
-                ["* %s" % line.strip().split(" ", 1)[1] for line in stdout]
-            )
-        )
+        print("\n".join(["* %s" % line.strip().split(" ", 1)[1] for line in stdout]))
     else:
-        print("There are no new commits in this branch. Use \"pmac add\" to add some.")
+        print('There are no new commits in this branch. Use "pmac add" to add some.')
 
 
 def fetch(url, is_json=True):
@@ -166,7 +165,9 @@ def main(argv=None):
     subparsers.required = True
 
     # Create parser for "add" command
-    parser_add = subparsers.add_parser("add", help="combine specified PRs into this branch")
+    parser_add = subparsers.add_parser(
+        "add", help="combine specified PRs into this branch"
+    )
     parser_add.add_argument("pr", nargs="+", help="PR to combine")
 
     # Create parser for "prmsg" command
@@ -179,11 +180,11 @@ def main(argv=None):
     parsed = parser.parse_args(argv)
 
     if parsed.cmd == "add":
-        return(subcommand_add(config, parsed))
+        return subcommand_add(config, parsed)
     elif parsed.cmd == "prmsg":
-        return(subcommand_prmsg(config, parsed))
+        return subcommand_prmsg(config, parsed)
     elif parsed.cmd == "listprs":
-        return(subcommand_listprs(config, parsed))
+        return subcommand_listprs(config, parsed)
     else:
         parser.print_help()
         return 1
