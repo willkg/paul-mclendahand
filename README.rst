@@ -58,7 +58,7 @@ environment variables::
 
 or by adding a section to the ``setup.cfg`` file::
 
-   [tools:pmac]
+   [tool:paul-mclendahand]
    github_user=user
    github_project=project
 
