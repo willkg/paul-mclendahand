@@ -67,15 +67,15 @@ def subcommand_add(config, args):
     prs = args.pr
     remote = get_remote_name(config["github_user"])
 
-    for pr in prs:
-        print(">>> Working on pr %s ..." % pr)
+    for pr_index, pr in enumerate(prs):
+        print(">>> Working on pr %s (%s/%s)..." % (pr, pr_index + 1, len(prs)))
         ret = run_cmd(["git", "log", "--oneline", "master..%s/pr/%s" % (remote, pr)])
         commits = [
             line.strip().split(" ")[0]
             for line in ret.stdout.decode("utf-8").splitlines()
         ]
-        for commit in reversed(commits):
-            print(">>> Cherry-picking %s ..." % commit)
+        for commit_index, commit in enumerate(reversed(commits)):
+            print(">>> Cherry-picking %s from %s (%s/%s) ..." % (commit, pr, commit_index + 1, len(commits)))
             ret = run_cmd(["git", "log", "--format=%B", "-n", "1", commit])
             data = ret.stdout.decode("utf-8")
 
@@ -86,9 +86,12 @@ def subcommand_add(config, args):
                 print(ret.stderr.decode("utf-8").strip())
 
             if ret.returncode != 0:
-                print(">>> Something happened when cherry-picking.")
+                print(">>> Conflict hit when cherry-picking %s from %s." % (commit, pr))
+                ret = run_cmd(["git", "status"])
+                print(ret.stdout.decode("utf-8"))
                 print(
-                    ">>> Please fix it in another shell and then hit ENTER to contine."
+                    ">>> Please fix the above issue in another shell. When you are done, hit ENTER "
+                    "to continue."
                 )
                 input()
 
