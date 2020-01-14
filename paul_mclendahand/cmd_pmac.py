@@ -4,10 +4,14 @@
 
 import argparse
 import configparser
+import json
 import os
 import subprocess
 import sys
+from urllib.request import urlopen
 
+
+GITHUB_API = "https://api.github.com/"
 
 DEFAULT_CONFIG = {"github_user": "", "github_project": ""}
 
@@ -121,6 +125,34 @@ def subcommand_prmsg(config, args):
     )
 
 
+def fetch(url, is_json=True):
+    """Fetch data from a url
+
+    This raises URLError on HTTP request errors. It also raises JSONDecode
+    errors if it's not valid JSON.
+
+    """
+    fp = urlopen(url)
+    data = fp.read()
+    if is_json:
+        return json.loads(data)
+    return data
+
+
+def fetch_prs_from_github(owner, repo):
+    url = f"{GITHUB_API}repos/{owner}/{repo}/pulls?base=master"
+    return fetch(url)
+
+
+def subcommand_listprs(config, args):
+    github_user = config["github_user"]
+    github_project = config["github_project"]
+
+    resp = fetch_prs_from_github(github_user, github_project)
+    for pr in resp:
+        print("%s %s" % (pr["number"], pr["title"]))
+
+
 def main(argv=None):
     argv = argv or sys.argv[1:]
 
@@ -135,6 +167,9 @@ def main(argv=None):
     # Create parser for "prmsg" command
     subparsers.add_parser("prmsg", help="print out a PR summary")
 
+    # Create parser for "list" command
+    subparsers.add_parser("listprs", help="list available PRs for project")
+
     config = get_config()
     parsed = parser.parse_args(argv)
 
@@ -142,6 +177,8 @@ def main(argv=None):
         return(subcommand_add(config, parsed))
     elif parsed.cmd == "prmsg":
         return(subcommand_prmsg(config, parsed))
+    elif parsed.cmd == "listprs":
+        return(subcommand_listprs(config, parsed))
     else:
         parser.print_help()
         return 1
