@@ -2,18 +2,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import argparse
 import configparser
 import os
 import subprocess
 import sys
-
-
-HELP = """\
-Usage: pmac COMMAND
-
-add PR [PR...]  add PRs to this set
-prmsg           build a PR summary
-"""
 
 
 DEFAULT_CONFIG = {"github_user": "", "github_project": ""}
@@ -66,7 +59,8 @@ def run_cmd(args, check=True):
     )
 
 
-def subcommand_add(config, prs):
+def subcommand_add(config, args):
+    prs = args.pr
     remote = get_remote_name(config["github_user"])
 
     for pr in prs:
@@ -112,7 +106,7 @@ def subcommand_add(config, prs):
     print(ret.stdout.decode("utf-8").strip())
 
 
-def subcommand_prmsg(config):
+def subcommand_prmsg(config, args):
     ret = run_cmd(["git", "log", "--oneline", "master..HEAD"])
 
     print("Update dependencies. This covers:")
@@ -130,24 +124,27 @@ def subcommand_prmsg(config):
 def main(argv=None):
     argv = argv or sys.argv[1:]
 
-    if not argv:
-        print(HELP)
-        return
+    parser = argparse.ArgumentParser(description="GitHub pull request combiner tool.")
+    subparsers = parser.add_subparsers(dest="cmd", help="Sub-command")
+    subparsers.required = True
+
+    # Create parser for "add" command
+    parser_add = subparsers.add_parser("add", help="combine specified PRs into this branch")
+    parser_add.add_argument("pr", nargs="+", help="PR to combine")
+
+    # Create parser for "prmsg" command
+    subparsers.add_parser("prmsg", help="print out a PR summary")
 
     config = get_config()
+    parsed = parser.parse_args(argv)
 
-    subcommand = argv.pop(0)
-    if subcommand == "add":
-        if not argv:
-            print(">>> Nothing to do. Exiting.")
-            return 0
-        return subcommand_add(config, argv)
-
-    if subcommand == "prmsg":
-        return subcommand_prmsg(config)
-
-    print("Unknown command.")
-    print(HELP)
+    if parsed.cmd == "add":
+        return(subcommand_add(config, parsed))
+    elif parsed.cmd == "prmsg":
+        return(subcommand_prmsg(config, parsed))
+    else:
+        parser.print_help()
+        return 1
 
 
 if __name__ == "__main__":
