@@ -2,7 +2,7 @@
 paul-mclendahand
 ================
 
-Tools for combining GitHub pull requests.
+Tool for combining GitHub pull requests.
 
 :Code:          https://github.com/willkg/paul-mclendahand
 :Issues:        https://github.com/willkg/paul-mclendahand/issues
@@ -13,14 +13,19 @@ Tools for combining GitHub pull requests.
 Install
 =======
 
-Install from github::
+
+With `pipx <https://pypi.org/project/pipx/>`_::
+
+    pipx install paul-mclendahand
+
+With pip from PyPI::
+
+    pip install paul-mclendahand
+    
+With pip from GitHub master branch::
 
     pip install https://github.com/willkg/paul-mclendahand/archive/master.zip
 
-Install from PyPI:
-
-    TBD
-    
     
 Quick start
 ===========
@@ -50,8 +55,9 @@ for pull requests. They'll be available as ``upstream/pr/PRNUM``.
 Configure pmac
 --------------
 
-pmac needs to know the GitHub user and GitHub project. You can do that using
-environment variables::
+pmac needs to know the GitHub user and GitHub project.
+
+You can do that using environment variables::
 
    PMAC_GITHUB_USER=user
    PMAC_GITHUB_PROJECT=project
@@ -73,25 +79,29 @@ After you've configured git, then you can use ``pmac`` like this:
        git checkout master
        git checkout -b update-prs
 
-2. Combine some pull requests into it::
+2. List open PRs::
+
+       pmac listprs
+
+3. Combine some pull requests into it::
 
        pmac add 5100 5101 5102
 
    Use the same pull requests numbers as on GitHub.
 
    If you hit a cherry-pick conflict, ``pmac`` will tell you. You can edit
-   the file in another terminal, then do::
+   the file in another terminal to manually resolve the conflict. Then do::
 
        git add FILE
        git commit
 
    After that, you can continue with ``pmac``.
 
-3. When you're done, push the branch to GitHub and then do::
+4. When you're done, push the branch to GitHub and create a pull request.
+
+   ``pmac`` can help with the PR description::
 
        pmac prmsg
-
-   to get a pull request message.
 
 
 Why does this project exist?
@@ -105,6 +115,6 @@ https://github.community/t5/How-to-use-Git-and-GitHub/Feature-Request-combine-pu
 
 Second, dependabot (also owned by GitHub) doesn't support grouping dependency
 updates into a single pull request. If you have 50 dependency updates, it
-creates 50 pull requests. I have a lot of projects and that makes monthly
-maintenance miserable. There's an issue for this:
+creates 50 pull requests. I have a lot of projects and lack of grouping
+updates makes monthly maintenance miserable. There's an issue for this:
 https://github.com/dependabot/feedback/issues/5

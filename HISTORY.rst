@@ -1,7 +1,7 @@
 History
 =======
 
-0.0.1 (in development)
-----------------------
+1.0.0 (January 14, 2020)
+------------------------
 
-Initial writing.
+* Initial writing.

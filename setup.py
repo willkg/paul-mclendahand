@@ -25,7 +25,7 @@ def get_file(fn):
 setup(
     name="paul-mclendahand",
     version=get_version(),
-    description="Tools for combining GitHub pull requests.",
+    description="Tool for combining GitHub pull requests.",
     long_description=(get_file("README.rst") + "\n\n" + get_file("HISTORY.rst")),
     author="Will Kahn-Greene",
     author_email="willkg@mozilla.com",
