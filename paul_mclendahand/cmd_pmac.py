@@ -113,16 +113,18 @@ def subcommand_add(config, args):
 def subcommand_prmsg(config, args):
     ret = run_cmd(["git", "log", "--oneline", "master..HEAD"])
 
-    print("Update dependencies. This covers:")
-    print("")
-    print(
-        "\n".join(
-            [
-                "* %s" % line.strip().split(" ", 1)[1]
-                for line in ret.stdout.decode("utf-8").splitlines()
-            ]
+    stdout = ret.stdout.decode("utf-8").splitlines()
+
+    if stdout:
+        print("Update dependencies. This covers:")
+        print("")
+        print(
+            "\n".join(
+                ["* %s" % line.strip().split(" ", 1)[1] for line in stdout]
+            )
         )
-    )
+    else:
+        print("There are no new commits in this branch. Use \"pmac add\" to add some.")
 
 
 def fetch(url, is_json=True):
