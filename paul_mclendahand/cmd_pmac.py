@@ -51,7 +51,7 @@ def get_remote_name(github_user):
 
     for line in ret.stdout.decode("utf-8").strip().splitlines():
         line = line.split("\t")
-        if f":{github_user}/" in line[1]:
+        if f":{github_user}/" in line[1] and 'github.com' in line[1]:
             return line[0]
 
     raise Exception(f"Can't figure out remote name for {github_user}.")
