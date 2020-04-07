@@ -57,16 +57,24 @@ Configure pmac
 
 pmac needs to know the GitHub user and GitHub project.
 
-You can do that using environment variables::
-
-   PMAC_GITHUB_USER=user
-   PMAC_GITHUB_PROJECT=project
-
-or by adding a section to the ``setup.cfg`` file::
+You can set configuration in the ``setup.cfg`` file::
 
    [tool:paul-mclendahand]
    github_user=user
    github_project=project
+   git_remote=git-remote-name
+
+You can override the ``setup.cfg`` variables with environment variables::
+
+   PMAC_GITHUB_USER=user
+   PMAC_GITHUB_PROJECT=project
+   PMAC_GIT_REMOTE=git-remote-name
+
+You can also pass the git remote on the command line using the ``--git_remote``
+argument.
+
+If you don't specify a remote, then pmac will guess it using a highly
+sophisticated deterministic stochastic rainbow chairs algorithm.
 
 
 Using pmac

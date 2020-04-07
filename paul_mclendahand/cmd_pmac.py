@@ -10,15 +10,31 @@ import subprocess
 import sys
 from urllib.request import urlopen
 
+from paul_mclendahand import __releasedate__, __version__
+
+HELP_TEXT = f"""\
+GitHub pull request combiner tool.
+
+pmac uses a "[tool:paul-mclendahand]" section in setup.cfg to set configuration
+variables. You can override these using PMAC_VARNAME environment variables.
+
+See https://github.com/willkg/paul-mclendahand for details.
+"""
+
+EPILOG_TEXT = f"""\
+For issues, see: https://github.com/willkg/paul-mclendahand/issues
+
+Version: {__version__} ({__releasedate__})
+"""
 
 GITHUB_API = "https://api.github.com/"
 
-DEFAULT_CONFIG = {"github_user": "", "github_project": ""}
+DEFAULT_CONFIG = {"github_user": "", "github_project": "", "git_remote": ""}
 
 COMMIT_MESSAGE_FILE = "CMTMSG"
 
 
-def get_config():
+def get_config(args):
     """Generates configuration.
 
     This tries to pull from the ``[tool:paul-mclendahand]`` section of a
@@ -28,8 +44,10 @@ def get_config():
     :returns: configuration dict
 
     """
+    # Start with defaults
     my_config = dict(DEFAULT_CONFIG)
 
+    # Override with values from config file
     if os.path.exists("setup.cfg"):
         config = configparser.ConfigParser()
         config.read("setup.cfg")
@@ -39,14 +57,29 @@ def get_config():
             for key in my_config.keys():
                 my_config[key] = config.get(key, "")
 
+    # Override with environment variables
     for key in my_config.keys():
         if "PMAC_%s" % key.upper() in os.environ:
             my_config[key] = os.environ["PMAC_%s" % key.upper()]
 
+    # Override with command line arguments
+    for key in my_config.keys():
+        if getattr(args, key, ""):
+            my_config[key] = getattr(args, key)
+
     return my_config
 
 
-def get_remote_name(github_user):
+def get_remote_name(config):
+    # If the remote is set, use that
+    print(config)
+    if config.get("git_remote"):
+        return config["git_remote"]
+
+    # Otherwise guess the remote using deterministic stochastic rainbow chairs
+    # algorithm
+    github_user = config["github_user"]
+
     ret = run_cmd(["git", "remote", "-v"])
 
     for line in ret.stdout.decode("utf-8").strip().splitlines():
@@ -65,7 +98,7 @@ def run_cmd(args, check=True):
 
 def subcommand_add(config, args):
     prs = args.pr
-    remote = get_remote_name(config["github_user"])
+    remote = get_remote_name(config)
 
     for pr_index, pr in enumerate(prs):
         print(">>> Working on pr %s (%s/%s)..." % (pr, pr_index + 1, len(prs)))
@@ -160,7 +193,16 @@ def subcommand_listprs(config, args):
 def main(argv=None):
     argv = argv or sys.argv[1:]
 
-    parser = argparse.ArgumentParser(description="GitHub pull request combiner tool.")
+    parser = argparse.ArgumentParser(
+        description=HELP_TEXT,
+        epilog=EPILOG_TEXT,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument(
+        "--git_remote",
+        default="",
+        help="Name of the remote to use. If you don't specify one, then pmac will guess.",
+    )
     subparsers = parser.add_subparsers(dest="cmd", help="Sub-command")
     subparsers.required = True
 
@@ -176,8 +218,8 @@ def main(argv=None):
     # Create parser for "list" command
     subparsers.add_parser("listprs", help="list available PRs for project")
 
-    config = get_config()
     parsed = parser.parse_args(argv)
+    config = get_config(args=parsed)
 
     if parsed.cmd == "add":
         return subcommand_add(config, parsed)
