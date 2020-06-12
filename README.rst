@@ -22,9 +22,9 @@ With pip from PyPI::
 
     pip install paul-mclendahand
     
-With pip from GitHub master branch::
+With pip from GitHub main branch::
 
-    pip install https://github.com/willkg/paul-mclendahand/archive/master.zip
+    pip install https://github.com/willkg/paul-mclendahand/archive/main.zip
 
     
 Quick start
@@ -63,12 +63,14 @@ You can set configuration in the ``setup.cfg`` file::
    github_user=user
    github_project=project
    git_remote=git-remote-name
+   git_branch=git-main-branch-name
 
 You can override the ``setup.cfg`` variables with environment variables::
 
    PMAC_GITHUB_USER=user
    PMAC_GITHUB_PROJECT=project
    PMAC_GIT_REMOTE=git-remote-name
+   PMAC_GIT_BRANCH=git-main-branch-name
 
 You can also pass the git remote on the command line using the ``--git_remote``
 argument.
@@ -84,7 +86,7 @@ After you've configured git, then you can use ``pmac`` like this:
 
 1. Create a new branch::
 
-       git checkout master
+       git checkout <MAIN-BRANCH>
        git checkout -b update-prs
 
 2. List open PRs::
