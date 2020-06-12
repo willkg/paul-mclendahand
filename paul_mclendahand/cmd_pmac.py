@@ -12,7 +12,7 @@ from urllib.request import urlopen
 
 from paul_mclendahand import __releasedate__, __version__
 
-HELP_TEXT = f"""\
+HELP_TEXT = """\
 GitHub pull request combiner tool.
 
 pmac uses a "[tool:paul-mclendahand]" section in setup.cfg to set configuration
@@ -29,7 +29,12 @@ Version: {__version__} ({__releasedate__})
 
 GITHUB_API = "https://api.github.com/"
 
-DEFAULT_CONFIG = {"github_user": "", "github_project": "", "git_remote": ""}
+DEFAULT_CONFIG = {
+    "github_user": "",
+    "github_project": "",
+    "git_branch": "",
+    "git_remote": "",
+}
 
 COMMIT_MESSAGE_FILE = "CMTMSG"
 
@@ -72,13 +77,14 @@ def get_config(args):
 
 def get_remote_name(config):
     # If the remote is set, use that
-    print(config)
     if config.get("git_remote"):
         return config["git_remote"]
 
     # Otherwise guess the remote using deterministic stochastic rainbow chairs
     # algorithm
-    github_user = config["github_user"]
+    github_user = config["github_user"].strip()
+    if not github_user:
+        return
 
     ret = run_cmd(["git", "remote", "-v"])
 
@@ -86,8 +92,6 @@ def get_remote_name(config):
         line = line.split("\t")
         if f":{github_user}/" in line[1]:
             return line[0]
-
-    raise Exception(f"Can't figure out remote name for {github_user}.")
 
 
 def run_cmd(args, check=True):
@@ -98,11 +102,14 @@ def run_cmd(args, check=True):
 
 def subcommand_add(config, args):
     prs = args.pr
-    remote = get_remote_name(config)
+    remote = config["git_remote"]
+    main_branch = config["git_branch"]
 
     for pr_index, pr in enumerate(prs):
         print(">>> Working on pr %s (%s/%s)..." % (pr, pr_index + 1, len(prs)))
-        ret = run_cmd(["git", "log", "--oneline", "master..%s/pr/%s" % (remote, pr)])
+        ret = run_cmd(
+            ["git", "log", "--oneline", "%s..%s/pr/%s" % (main_branch, remote, pr)]
+        )
         commits = [
             line.strip().split(" ")[0]
             for line in ret.stdout.decode("utf-8").splitlines()
@@ -144,13 +151,14 @@ def subcommand_add(config, args):
                     os.remove(COMMIT_MESSAGE_FILE)
 
     print(">>> Done.")
-    print(">>> Log since master ...")
-    ret = run_cmd(["git", "log", "--oneline", "master..HEAD"])
+    print(">>> Log since %s tip ..." % main_branch)
+    ret = run_cmd(["git", "log", "--oneline", "%s..HEAD" % main_branch])
     print(ret.stdout.decode("utf-8").strip())
 
 
 def subcommand_prmsg(config, args):
-    ret = run_cmd(["git", "log", "--oneline", "master..HEAD"])
+    main_branch = config["git_branch"]
+    ret = run_cmd(["git", "log", "--oneline", "%s..HEAD" % main_branch])
 
     stdout = ret.stdout.decode("utf-8").splitlines()
 
@@ -176,16 +184,17 @@ def fetch(url, is_json=True):
     return data
 
 
-def fetch_prs_from_github(owner, repo):
-    url = f"{GITHUB_API}repos/{owner}/{repo}/pulls?base=master"
+def fetch_prs_from_github(owner, repo, branch):
+    url = f"{GITHUB_API}repos/{owner}/{repo}/pulls?base={branch}"
     return fetch(url)
 
 
 def subcommand_listprs(config, args):
     github_user = config["github_user"]
     github_project = config["github_project"]
+    main_branch = config["git_branch"]
 
-    resp = fetch_prs_from_github(github_user, github_project)
+    resp = fetch_prs_from_github(github_user, github_project, main_branch)
     for pr in resp:
         print("%s %s" % (pr["number"], pr["title"]))
 
@@ -220,6 +229,14 @@ def main(argv=None):
 
     parsed = parser.parse_args(argv)
     config = get_config(args=parsed)
+
+    # Calculate remote name if needed
+    config["git_remote"] = get_remote_name(config)
+
+    # Assert configuration
+    for key, val in config.items():
+        if not val:
+            raise Exception(f"Configuration '{key}' not set.")
 
     if parsed.cmd == "add":
         return subcommand_add(config, parsed)
