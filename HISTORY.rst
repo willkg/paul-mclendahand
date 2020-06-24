@@ -6,8 +6,8 @@ History
 
 NEW FEATURES:
 
-* Added a ``PMAC_GIT_BRANCH`` environment variable and ``git_branch`` configuration
-  option which specify the name of the main branch.
+* Added a ``PMAC_MAIN_BRANCH`` environment variable and ``main_branch`` configuration
+  option which specify the name of the main branch. (#12)
 
 
 1.1.0 (April 7th, 2020)
