@@ -32,7 +32,7 @@ GITHUB_API = "https://api.github.com/"
 DEFAULT_CONFIG = {
     "github_user": "",
     "github_project": "",
-    "git_branch": "",
+    "main_branch": "",
     "git_remote": "",
 }
 
@@ -103,7 +103,7 @@ def run_cmd(args, check=True):
 def subcommand_add(config, args):
     prs = args.pr
     remote = config["git_remote"]
-    main_branch = config["git_branch"]
+    main_branch = config["main_branch"]
 
     for pr_index, pr in enumerate(prs):
         print(">>> Working on pr %s (%s/%s)..." % (pr, pr_index + 1, len(prs)))
@@ -157,7 +157,7 @@ def subcommand_add(config, args):
 
 
 def subcommand_prmsg(config, args):
-    main_branch = config["git_branch"]
+    main_branch = config["main_branch"]
     ret = run_cmd(["git", "log", "--oneline", "%s..HEAD" % main_branch])
 
     stdout = ret.stdout.decode("utf-8").splitlines()
@@ -192,7 +192,7 @@ def fetch_prs_from_github(owner, repo, branch):
 def subcommand_listprs(config, args):
     github_user = config["github_user"]
     github_project = config["github_project"]
-    main_branch = config["git_branch"]
+    main_branch = config["main_branch"]
 
     resp = fetch_prs_from_github(github_user, github_project, main_branch)
     for pr in resp:

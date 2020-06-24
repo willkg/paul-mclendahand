@@ -63,14 +63,14 @@ You can set configuration in the ``setup.cfg`` file::
    github_user=user
    github_project=project
    git_remote=git-remote-name
-   git_branch=git-main-branch-name
+   main_branch=git-main-branch-name
 
 You can override the ``setup.cfg`` variables with environment variables::
 
    PMAC_GITHUB_USER=user
    PMAC_GITHUB_PROJECT=project
    PMAC_GIT_REMOTE=git-remote-name
-   PMAC_GIT_BRANCH=git-main-branch-name
+   PMAC_MAIN_BRANCH=git-main-branch-name
 
 You can also pass the git remote on the command line using the ``--git_remote``
 argument.
