@@ -13,7 +13,6 @@ Tool for combining GitHub pull requests.
 Install
 =======
 
-
 With `pipx <https://pypi.org/project/pipx/>`_::
 
     pipx install paul-mclendahand
@@ -77,6 +76,15 @@ argument.
 
 If you don't specify a remote, then pmac will guess it using a highly
 sophisticated deterministic stochastic rainbow chairs algorithm.
+
+**Optional**
+
+You can also use a GitHub personal access token. You set it in the
+``PMAC_GITHUB_API_TOKEN`` environment variable.
+
+For example::
+
+    PMAC_GITHUB_API_TOKEN=abcdef0000000000000000000000000000000000 pmac listprs
 
 
 Using pmac

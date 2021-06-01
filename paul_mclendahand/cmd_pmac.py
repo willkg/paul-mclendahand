@@ -8,7 +8,7 @@ import json
 import os
 import subprocess
 import sys
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
 
 from paul_mclendahand import __releasedate__, __version__
 
@@ -17,6 +17,10 @@ GitHub pull request combiner tool.
 
 pmac uses a "[tool:paul-mclendahand]" section in setup.cfg to set configuration
 variables. You can override these using PMAC_VARNAME environment variables.
+
+Additionally, if you want to use a GitHub personal access token, you need to
+provide the "PMAC_GITHUB_API_TOKEN" variable in the environment set to the
+token.
 
 See https://github.com/willkg/paul-mclendahand for details.
 """
@@ -34,7 +38,10 @@ DEFAULT_CONFIG = {
     "github_project": "",
     "main_branch": "",
     "git_remote": "",
+    "github_api_token": "",
 }
+
+OPTIONAL_CONFIG = ["github_api_token"]
 
 COMMIT_MESSAGE_FILE = "CMTMSG"
 
@@ -60,6 +67,10 @@ def get_config(args):
         if "tool:paul-mclendahand" in config:
             config = config["tool:paul-mclendahand"]
             for key in my_config.keys():
+                if key == "github_api_token":
+                    # We don't let people set the api token in the setup.cfg
+                    # file which gets checked in
+                    continue
                 my_config[key] = config.get(key, "")
 
     # Override with environment variables
@@ -170,23 +181,27 @@ def subcommand_prmsg(config, args):
         print('There are no new commits in this branch. Use "pmac add" to add some.')
 
 
-def fetch(url, is_json=True):
+def fetch(url, is_json=True, api_token=None):
     """Fetch data from a url
 
     This raises URLError on HTTP request errors. It also raises JSONDecode
     errors if it's not valid JSON.
 
     """
-    fp = urlopen(url)
+    headers = {}
+    if api_token:
+        headers["Authorization"] = f"token {api_token}"
+    req = Request(url=url, headers=headers)
+    fp = urlopen(req)
     data = fp.read()
     if is_json:
         return json.loads(data)
     return data
 
 
-def fetch_prs_from_github(owner, repo, branch):
+def fetch_prs_from_github(owner, repo, branch, api_token):
     url = f"{GITHUB_API}repos/{owner}/{repo}/pulls?base={branch}"
-    return fetch(url)
+    return fetch(url, api_token=api_token)
 
 
 def subcommand_listprs(config, args):
@@ -194,7 +209,9 @@ def subcommand_listprs(config, args):
     github_project = config["github_project"]
     main_branch = config["main_branch"]
 
-    resp = fetch_prs_from_github(github_user, github_project, main_branch)
+    api_token = config["github_api_token"]
+
+    resp = fetch_prs_from_github(github_user, github_project, main_branch, api_token)
     for pr in resp:
         print("%s %s" % (pr["number"], pr["title"]))
 
@@ -235,7 +252,7 @@ def main(argv=None):
 
     # Assert configuration
     for key, val in config.items():
-        if not val:
+        if key not in OPTIONAL_CONFIG and not val:
             raise Exception(f"Configuration '{key}' not set.")
 
     if parsed.cmd == "add":
