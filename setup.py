@@ -24,12 +24,14 @@ def get_file(fn):
 
 INSTALL_REQUIRES = []
 EXTRAS_REQUIRE = {
+    # NOTE(willkg): We pin these because we want to know what we're testing
+    # and building with. Use "make checkrot" to figure out what to update.
     "dev": [
         "black==20.8b1",
-        "check-manifest==0.41",
-        "flake8==3.8.4",
-        "tox==3.20.1",
-        "twine==3.1.1 ; python_version >= '3.6'",
+        "check-manifest==0.46",
+        "flake8==3.9.2",
+        "tox==3.23.1",
+        "twine==3.4.1",
     ]
 }
 
