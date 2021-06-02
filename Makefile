@@ -21,3 +21,11 @@ clean:  ## Clean build artifacts
 lint:  ## Lint and black reformat files
 	black --target-version=py36 src setup.py
 	flake8 src
+
+.PHONY: checkrot
+checkrot:  ## Check package rot for dev dependencies
+	python -m venv ./tmpvenv/
+	./tmpvenv/bin/pip install -U pip
+	./tmpvenv/bin/pip install '.[dev]'
+	./tmpvenv/bin/pip list -o
+	rm -rf ./tmpvenv/
