@@ -2,3 +2,4 @@ include *.rst
 include tox.ini
 include requirements-dev.txt
 include LICENSE
+include Makefile
