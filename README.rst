@@ -25,6 +25,10 @@ With pip from GitHub main branch::
 
     pip install https://github.com/willkg/paul-mclendahand/archive/main.zip
 
+With pip from a clone of the repository with dev dependencies::
+
+    pip install -e '.[dev]'
+
     
 Quick start
 ===========

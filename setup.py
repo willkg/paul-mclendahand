@@ -11,7 +11,7 @@ from setuptools import find_packages, setup
 
 
 def get_version():
-    fn = os.path.join("paul_mclendahand", "__init__.py")
+    fn = os.path.join("src", "paul_mclendahand", "__init__.py")
     vsre = r"""^__version__ = ['"]([^'"]*)['"]"""
     version_file = open(fn, "rt").read()
     return re.search(vsre, version_file, re.M).group(1)
@@ -22,6 +22,17 @@ def get_file(fn):
         return fp.read()
 
 
+INSTALL_REQUIRES = []
+EXTRAS_REQUIRE = {
+    "dev": [
+        "black==20.8b1",
+        "check-manifest==0.41",
+        "flake8==3.8.4",
+        "tox==3.20.1",
+        "twine==3.1.1 ; python_version >= '3.6'",
+    ]
+}
+
 setup(
     name="paul-mclendahand",
     version=get_version(),
@@ -30,10 +41,10 @@ setup(
     author="Will Kahn-Greene",
     author_email="willkg@mozilla.com",
     url="https://github.com/willkg/paul-mclendahanad",
-    install_requires=[],
-    extras_require={},
-    packages=find_packages(),
-    package_dir={"paul_mclendahand": "paul_mclendahand"},
+    install_requires=INSTALL_REQUIRES,
+    extras_require=EXTRAS_REQUIRE,
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
     include_package_data=True,
     license="MPLv2",
     zip_safe=False,
@@ -42,6 +53,11 @@ setup(
     [console_scripts]
     pmac=paul_mclendahand.cmd_pmac:main
     """,
+    options={
+        "bdist_wheel": {
+            "universal": "1",
+        },
+    },
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
@@ -51,5 +67,6 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
     ],
 )

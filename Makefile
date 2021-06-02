@@ -12,12 +12,12 @@ test:  ## Run tests
 
 .PHONY: clean
 clean:  ## Clean build artifacts
-	rm -rf build dist ${PROJECT}.egg-info .tox
+	rm -rf build dist src/${PROJECT}.egg-info .tox
 	rm -rf docs/_build/*
 	find ${PROJECT}/ -name __pycache__ | xargs rm -rf
 	find ${PROJECT}/ -name '*.pyc' | xargs rm -rf
 
 .PHONY: lint
 lint:  ## Lint and black reformat files
-	black --target-version=py36 ${PROJECT}
-	flake8 ${PROJECT}
+	black --target-version=py36 src setup.py
+	flake8 src
