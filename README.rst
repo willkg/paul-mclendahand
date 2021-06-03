@@ -13,7 +13,7 @@ Tool for combining GitHub pull requests.
 Install
 =======
 
-With `pipx <https://pypi.org/project/pipx/>`_::
+(Recommended) With `pipx <https://pypi.org/project/pipx/>`_::
 
     pipx install paul-mclendahand
 
@@ -33,28 +33,6 @@ With pip from a clone of the repository with dev dependencies::
 Quick start
 ===========
 
-Configure git to fetch pull request references
-----------------------------------------------
-
-First, you need to have git configured to fetch pull request references. I have
-an additional ``fetch`` line in my remote for github.com. For example,
-this is what I have for socorro::
-
-    [remote "upstream"]
-        url = git@github.com:mozilla-services/socorro.git
-        fetch = +refs/heads/*:refs/remotes/upstream/*
-        fetch = +refs/pull/*/head:refs/remotes/upstream/pr/*
-
-The line you need to add is the last one. Make sure to use the right remote::
-
-        fetch = +refs/pull/*/head:refs/remotes/upstream/pr/*
-                                               ^^^^^^^^
-                                               use your remote name here
-
-After adding that, when you do ``git pull``, it'll pull down all the references
-for pull requests. They'll be available as ``upstream/pr/PRNUM``.
-
-
 Configure pmac
 --------------
 
@@ -65,21 +43,13 @@ You can set configuration in the ``setup.cfg`` file::
    [tool:paul-mclendahand]
    github_user=user
    github_project=project
-   git_remote=git-remote-name
    main_branch=git-main-branch-name
 
 You can override the ``setup.cfg`` variables with environment variables::
 
    PMAC_GITHUB_USER=user
    PMAC_GITHUB_PROJECT=project
-   PMAC_GIT_REMOTE=git-remote-name
    PMAC_MAIN_BRANCH=git-main-branch-name
-
-You can also pass the git remote on the command line using the ``--git_remote``
-argument.
-
-If you don't specify a remote, then pmac will guess it using a highly
-sophisticated deterministic stochastic rainbow chairs algorithm.
 
 **Optional**
 
@@ -90,6 +60,10 @@ For example::
 
     PMAC_GITHUB_API_TOKEN=abcdef0000000000000000000000000000000000 pmac listprs
 
+.. Note::
+
+   If you find pmac stops working because it's getting rate-limited by GitHub,
+   you should use a personal access token.
 
 Using pmac
 ----------
@@ -111,8 +85,9 @@ After you've configured git, then you can use ``pmac`` like this:
 
    Use the same pull requests numbers as on GitHub.
 
-   If you hit a cherry-pick conflict, ``pmac`` will tell you. You can edit
-   the file in another terminal to manually resolve the conflict. Then do::
+   Internally, ``pmac`` uses ``git am`` to apply commits from pull requests. If
+   you hit a ``git am`` conflict, ``pmac`` will tell you. You can edit the file
+   in another terminal to manually resolve the conflict. Then do::
 
        git add FILE
        git commit
@@ -133,10 +108,11 @@ Two main reasons.
 
 First, GitHub doesn't support combining pull requests. There is a forum post
 about it here:
-https://github.community/t5/How-to-use-Git-and-GitHub/Feature-Request-combine-pull-requests/td-p/27660
+https://github.community/t/feature-request-combine-pull-requests/2250
 
 Second, dependabot (also owned by GitHub) doesn't support grouping dependency
 updates into a single pull request. If you have 50 dependency updates, it
-creates 50 pull requests. I have a lot of projects and lack of grouping
-updates makes monthly maintenance miserable. There's an issue for this:
-https://github.com/dependabot/feedback/issues/5
+creates 50 pull requests (sometimes more!). I have a lot of projects and lack
+of grouping updates makes monthly maintenance miserable. There's an issue for
+this:
+https://github.com/dependabot/dependabot-core/issues/1190
