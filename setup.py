@@ -55,11 +55,6 @@ setup(
     [console_scripts]
     pmac=paul_mclendahand.cmd_pmac:main
     """,
-    options={
-        "bdist_wheel": {
-            "universal": "1",
-        },
-    },
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
