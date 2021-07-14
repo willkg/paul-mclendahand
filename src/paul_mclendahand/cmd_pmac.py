@@ -121,7 +121,7 @@ def subcommand_add(config, args):
     api_token = config["github_api_token"]
 
     for pr_index, pr in enumerate(prs):
-        print(">>> Working on pr %s (%s/%s)..." % (pr, pr_index + 1, len(prs)))
+        print(">>> pmac: Working on pr %s (%s/%s)..." % (pr, pr_index + 1, len(prs)))
 
         # Get the commits for that PR
         url = f"{GITHUB_API}repos/{github_user}/{github_project}/pulls/{pr}/commits"
@@ -134,12 +134,12 @@ def subcommand_add(config, args):
             commit_html_url = commit["html_url"]
 
             print(
-                f">>> Applying {commit_sha} from {pr} ({commit_index + 1}/{num_commits}) ..."
+                f">>> pmac: Applying {commit_sha} from {pr} ({commit_index + 1}/{num_commits}) ..."
             )
 
             # Get the patch and apply with "git am"
             patch = fetch(commit_html_url + ".patch", is_json=False)
-            proc = run_cmd(["git", "am"], stdin=patch)
+            proc = run_cmd(["git", "am", "--3way"], stdin=patch, check=False)
             stdout = proc.stdout.decode("utf-8").strip()
             stderr = proc.stderr.decode("utf-8").strip()
 
@@ -149,17 +149,33 @@ def subcommand_add(config, args):
                 print(stderr)
 
             if proc.returncode != 0:
-                print(f">>> Conflict hit when applying {commit_sha} from {pr}.")
+                print(f">>> pmac: Conflict hit when applying {commit_sha} from {pr}.")
                 ret = run_cmd(["git", "status"])
                 print(ret.stdout.decode("utf-8"))
                 print(
-                    ">>> Please fix the above issue in another shell. When you are done, hit ENTER "
-                    "to continue."
+                    ">>> pmac: Please fix the above issue in another shell. When you are done, hit "
+                    "ENTER to continue."
                 )
                 input()
 
-    print(">>> Done.")
-    print(">>> Log since %s tip ..." % main_branch)
+            # Grab the commit message for that last commit
+            ret = run_cmd(["git", "log", "--format=%B", "-n", "1", "HEAD"])
+            data = ret.stdout.decode("utf-8")
+
+            data = data.splitlines()
+            data[0] = data[0].strip() + " (from PR #%s)" % pr
+            try:
+                with open(COMMIT_MESSAGE_FILE, "w") as fp:
+                    fp.write("\n".join(data))
+
+                run_cmd(["git", "commit", "--amend", "--file=%s" % COMMIT_MESSAGE_FILE])
+            finally:
+                # Delete the file if it's there
+                if os.path.exists(COMMIT_MESSAGE_FILE):
+                    os.remove(COMMIT_MESSAGE_FILE)
+
+    print(">>> pmac: Done.")
+    print(">>> pmac: Log since %s tip ..." % main_branch)
     ret = run_cmd(["git", "log", "--oneline", "%s..HEAD" % main_branch])
     print(ret.stdout.decode("utf-8").strip())
 
@@ -171,6 +187,8 @@ def subcommand_prmsg(config, args):
     stdout = ret.stdout.decode("utf-8").splitlines()
 
     if stdout:
+        print(">>> pmac: Copy and paste this text and use it as the PR description.")
+        print("")
         print("Update dependencies. This covers:")
         print("")
         print("\n".join(["* %s" % line.strip().split(" ", 1)[1] for line in stdout]))
