@@ -1,8 +1,26 @@
 History
 =======
 
-1.3.0 (in development)
-----------------------
+2.0.0 (July 15th, 2021)
+-----------------------
+
+NEW FEATURES:
+
+* Rewrote how ``pmac add`` works. It no longer needs you to edit your
+  ``.git/config`` file. It now uses the GitHub API to fetch the commits for the
+  PRs being added.
+
+  You can remove ``git_remote`` related configuration. It's no longer used.
+
+  You should use GitHub to create an API token and then use that as the value
+  for the ``PMAC_GITHUB_API_TOKEN``. This will fix issues with rate-limiting.
+
+  (#14)
+
+OTHER THINGS:
+
+* Switched to a ``src/`` based project layout and moved requirements into
+  ``setup.py`` file.
 
 
 1.2.0 (June 12th, 2020)
