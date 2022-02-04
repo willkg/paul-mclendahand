@@ -19,7 +19,7 @@ clean:  ## Clean build artifacts
 
 .PHONY: lint
 lint:  ## Lint and black reformat files
-	black --target-version=py36 src setup.py
+	black --target-version=py37 src setup.py
 	flake8 src
 
 .PHONY: checkrot
