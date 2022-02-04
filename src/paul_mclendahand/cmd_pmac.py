@@ -144,19 +144,39 @@ def subcommand_add(config, args):
             stderr = proc.stderr.decode("utf-8").strip()
 
             if stdout:
-                print(stdout)
+                for line in stdout.splitlines():
+                    print(f"git am (out): {line}")
             if stderr:
-                print(stderr)
+                for line in stderr.splitlines():
+                    print(f"git am (err): {line}")
+
+            if "No changes" in stdout:
+                print(
+                    f">>> pmac: PR {pr} looks like it's already been applied. Skipping..."
+                )
+                print("")
+                continue
 
             if proc.returncode != 0:
-                print(f">>> pmac: Conflict hit when applying {commit_sha} from {pr}.")
-                ret = run_cmd(["git", "status"])
-                print(ret.stdout.decode("utf-8"))
-                print(
-                    ">>> pmac: Please fix the above issue in another shell. When you are done, hit "
-                    "ENTER to continue."
-                )
-                input()
+                unresolved = True
+
+                while unresolved:
+                    print(
+                        f">>> pmac: Conflict hit when applying {commit_sha} from {pr}."
+                    )
+                    ret = run_cmd(["git", "status"])
+                    print(ret.stdout.decode("utf-8"))
+                    print(
+                        ">>> pmac: Please fix the above issue in another shell. When you are done, hit "
+                        "ENTER to continue."
+                    )
+                    input()
+
+                    # If we can see the current patch, then git-am is still in
+                    # progress and we don't want to continue
+                    ret = run_cmd(["git", "am", "--show-current-patch"])
+                    if ret.status_code != 0:
+                        unresolved = False
 
             # Grab the commit message for that last commit
             ret = run_cmd(["git", "log", "--format=%B", "-n", "1", "HEAD"])
@@ -174,10 +194,17 @@ def subcommand_add(config, args):
                 if os.path.exists(COMMIT_MESSAGE_FILE):
                     os.remove(COMMIT_MESSAGE_FILE)
 
-    print(">>> pmac: Done.")
-    print(">>> pmac: Log since %s tip ..." % main_branch)
+            print("")
+
     ret = run_cmd(["git", "log", "--oneline", "%s..HEAD" % main_branch])
-    print(ret.stdout.decode("utf-8").strip())
+    stdout = ret.stdout.decode("utf-8").strip()
+    if stdout:
+        print(">>> pmac: Log since %s tip ..." % main_branch)
+        print(ret.stdout.decode("utf-8").strip())
+    else:
+        print(">>> pmac: No changes.")
+
+    print(">>> pmac: Done.")
 
 
 def subcommand_prmsg(config, args):
