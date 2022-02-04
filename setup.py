@@ -31,6 +31,7 @@ EXTRAS_REQUIRE = {
         "check-manifest==0.47",
         "flake8==4.0.1",
         "tox==3.24.5",
+        "tox-gh-actions==2.9.1",
         "twine==3.8.0",
     ]
 }
