@@ -27,11 +27,11 @@ EXTRAS_REQUIRE = {
     # NOTE(willkg): We pin these because we want to know what we're testing
     # and building with. Use "make checkrot" to figure out what to update.
     "dev": [
-        "black==20.8b1",
-        "check-manifest==0.46",
-        "flake8==3.9.2",
-        "tox==3.23.1",
-        "twine==3.4.1",
+        "black==22.1.0",
+        "check-manifest==0.47",
+        "flake8==4.0.1",
+        "tox==3.24.5",
+        "twine==3.8.0",
     ]
 }
 
