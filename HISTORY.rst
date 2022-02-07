@@ -1,6 +1,17 @@
 History
 =======
 
+2.1.0 (February 7th, 2022)
+--------------------------
+
+OTHER THINGS:
+
+* Better handling for ``git am`` conflicts. (#22)
+
+* Better handling for when no changes were applied. ``pmac add`` won't adjust
+  the top-most commit. (#24)
+
+
 2.0.0 (July 15th, 2021)
 -----------------------
 
