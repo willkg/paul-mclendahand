@@ -112,6 +112,18 @@ def run_cmd(args, stdin=None, check=True):
     return subprocess.run(args, **params)
 
 
+def is_am_in_progress():
+    """Returns whether or not we're in an am session
+
+    :returns: True if in "git am" session; False otherwise
+
+    """
+    # Get the path for rebase-apply directory
+    ret = run_cmd(["git", "rev-parse", "--git-path", "rebase-apply"])
+    path = ret.stdout.decode("utf-8").strip()
+    return os.path.exists(path)
+
+
 def subcommand_add(config, args):
     prs = args.pr
 
@@ -150,6 +162,11 @@ def subcommand_add(config, args):
                 for line in stderr.splitlines():
                     print(f"git am (err): {line}")
 
+            # FIXME(willkg): This only works for when the commit didn't make
+            # any changes. It doesn't work when there are two commits that do
+            # conflicting things and the user ends up doing "git am --skip" for
+            # one of them. In that scenario, the commit was not applied, but
+            # pmac doesn't know, so it then adds a from PR thing.
             if "No changes" in stdout:
                 print(
                     f">>> pmac: PR {pr} looks like it's already been applied. Skipping..."
@@ -172,10 +189,7 @@ def subcommand_add(config, args):
                     )
                     input()
 
-                    # If we can see the current patch, then git-am is still in
-                    # progress and we don't want to continue
-                    ret = run_cmd(["git", "am", "--show-current-patch"])
-                    if ret.status_code != 0:
+                    if not is_am_in_progress():
                         unresolved = False
 
             # Grab the commit message for that last commit
@@ -183,7 +197,18 @@ def subcommand_add(config, args):
             data = ret.stdout.decode("utf-8")
 
             data = data.splitlines()
-            data[0] = data[0].strip() + " (from PR #%s)" % pr
+
+            # If this line already has a "{from PR #xyz)" at the end, then the
+            # user probably did "git am --skip" and we don't want to add another one.
+            firstline = data[0].strip()
+            if "(from PR #" in firstline:
+                print(
+                    '>>> pmac: Looks like you might have done "git am --skip", so I won\'t '
+                    "adjust the commit summary."
+                )
+                continue
+
+            data[0] = firstline + " (from PR #%s)" % pr
             try:
                 with open(COMMIT_MESSAGE_FILE, "w") as fp:
                     fp.write("\n".join(data))
