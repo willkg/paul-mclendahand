@@ -91,6 +91,7 @@ After you've configured git, then you can use ``pmac`` like this:
 
        git add FILE
        git commit
+       git am --continue
 
    After that, you can continue with ``pmac``.
 
