@@ -9,6 +9,7 @@ import subprocess
 from urllib.request import Request, urlopen
 
 import click
+from rich.console import Console
 
 from paul_mclendahand import __version__
 
@@ -49,12 +50,14 @@ def get_config():
             config = config["tool:paul-mclendahand"]
             for key in my_config.keys():
                 if key == "github_api_token":
-                    # We don't let people set the api token in the setup.cfg
-                    # file which gets checked in
-                    raise click.ClickException(
-                        "You shouldn't set github_api_token in setup.cfg."
-                    )
-                my_config[key] = config.get(key, "")
+                    if key in config:
+                        # We don't let people set the api token in the setup.cfg
+                        # file which gets checked in
+                        raise click.ClickException(
+                            "You shouldn't set github_api_token in setup.cfg."
+                        )
+                else:
+                    my_config[key] = config.get(key, "")
 
     # Override with environment variables
     for key in my_config.keys():
@@ -127,11 +130,12 @@ def pmac_cli():
 
 
 @pmac_cli.command(name="add")
-@click.argument("pr")
+@click.argument("pr", required=True, nargs=-1)
 @click.pass_context
 def pmac_add(ctx, pr):
     """Combine specified PRs into this branch."""
-    # FIXME(pass in args)
+    console = Console()
+
     config = get_config()
 
     github_user = config["github_user"]
@@ -140,10 +144,14 @@ def pmac_add(ctx, pr):
     api_token = config["github_api_token"]
 
     for pr_index, this_pr in enumerate(pr):
-        print(f">>> pmac: Working on pr {this_pr} ({pr_index+1}/{len(pr)}")
+        console.print(
+            f"[green]pmac: Working on pr {this_pr} ({pr_index+1}/{len(pr)})[/green]"
+        )
 
         # Get the commits for that PR
-        url = f"{GITHUB_API}repos/{github_user}/{github_project}/pulls/{pr}/commits"
+        url = (
+            f"{GITHUB_API}repos/{github_user}/{github_project}/pulls/{this_pr}/commits"
+        )
         # This returns a list of commit objects
         resp = fetch(url, api_token=api_token)
         num_commits = len(resp)
@@ -152,8 +160,9 @@ def pmac_add(ctx, pr):
             commit_sha = commit["sha"]
             commit_html_url = commit["html_url"]
 
-            print(
-                f">>> pmac: Applying {commit_sha} from {pr} ({commit_index + 1}/{num_commits}) ..."
+            console.print(
+                f"[green]pmac: Applying {commit_sha} from {this_pr} "
+                + f"({commit_index + 1}/{num_commits}) ...[/green]"
             )
 
             # Get the patch and apply with "git am"
@@ -164,10 +173,10 @@ def pmac_add(ctx, pr):
 
             if stdout:
                 for line in stdout.splitlines():
-                    print(f"git am (out): {line}")
+                    console.print(f"git am (out): {line}")
             if stderr:
                 for line in stderr.splitlines():
-                    print(f"git am (err): {line}")
+                    console.print(f"git am (err): {line}")
 
             # FIXME(willkg): This only works for when the commit didn't make
             # any changes. It doesn't work when there are two commits that do
@@ -175,24 +184,25 @@ def pmac_add(ctx, pr):
             # one of them. In that scenario, the commit was not applied, but
             # pmac doesn't know, so it then adds a from PR thing.
             if "No changes" in stdout:
-                print(
-                    f">>> pmac: PR {pr} looks like it's already been applied. Skipping..."
+                console.print(
+                    f"[green]pmac: PR {this_pr} looks like it's already been applied. "
+                    + "Skipping...[/green]"
                 )
-                print("")
+                console.print()
                 continue
 
             if proc.returncode != 0:
                 unresolved = True
 
                 while unresolved:
-                    print(
-                        f">>> pmac: Conflict hit when applying {commit_sha} from {pr}."
+                    console.print(
+                        f"[red]pmac: Conflict hit when applying {commit_sha} from {this_pr}.[/red]"
                     )
                     ret = run_cmd(["git", "status"])
-                    print(ret.stdout.decode("utf-8"))
-                    print(
-                        ">>> pmac: Please fix the above issue in another shell. When you are done, hit "
-                        "ENTER to continue."
+                    console.print(ret.stdout.decode("utf-8"))
+                    console.print(
+                        "[red]pmac: Please fix the above issue in another shell. When you are done, hit "
+                        + "ENTER to continue.[/red]"
                     )
                     input()
 
@@ -209,13 +219,13 @@ def pmac_add(ctx, pr):
             # user probably did "git am --skip" and we don't want to add another one.
             firstline = data[0].strip()
             if "(from PR #" in firstline:
-                print(
-                    '>>> pmac: Looks like you might have done "git am --skip", so I won\'t '
-                    "adjust the commit summary."
+                console.print(
+                    '[green]pmac: Looks like you might have done "git am --skip", so I won\'t '
+                    + "adjust the commit summary.[/green]"
                 )
                 continue
 
-            data[0] = firstline + " (from PR #%s)" % pr
+            data[0] = f"{firstline} (from PR {this_pr})"
             try:
                 with open(COMMIT_MESSAGE_FILE, "w") as fp:
                     fp.write("\n".join(data))
@@ -226,23 +236,25 @@ def pmac_add(ctx, pr):
                 if os.path.exists(COMMIT_MESSAGE_FILE):
                     os.remove(COMMIT_MESSAGE_FILE)
 
-            print("")
+            console.print("")
 
     ret = run_cmd(["git", "log", "--oneline", "%s..HEAD" % main_branch])
     stdout = ret.stdout.decode("utf-8").strip()
     if stdout:
-        print(">>> pmac: Log since %s tip ..." % main_branch)
-        print(ret.stdout.decode("utf-8").strip())
+        console.print(f"[green]pmac: Log since {main_branch} tip ...[/green]")
+        console.print(ret.stdout.decode("utf-8").strip())
     else:
-        print(">>> pmac: No changes.")
+        console.print("[green]pmac: No changes.[/green]")
 
-    print(">>> pmac: Done.")
+    console.print("[green]pmac: Done.[/green]")
 
 
 @pmac_cli.command(name="prmsg")
 @click.pass_context
 def pmac_prmsg(ctx):
     """Print out summary of commits suitable for a PR msg."""
+    console = Console()
+
     config = get_config()
 
     main_branch = config["main_branch"]
@@ -250,20 +262,31 @@ def pmac_prmsg(ctx):
 
     stdout = ret.stdout.decode("utf-8").splitlines()
 
-    if stdout:
-        print(">>> pmac: Copy and paste this text and use it as the PR description.")
-        print("")
-        print("Update dependencies. This covers:")
-        print("")
-        print("\n".join(["* %s" % line.strip().split(" ", 1)[1] for line in stdout]))
-    else:
-        print('There are no new commits in this branch. Use "pmac add" to add some.')
+    if not stdout:
+        console.print(
+            'There are no new commits in this branch. Use "pmac add" to add some.'
+        )
+        ctx.exit(1)
+
+    console.print(
+        "[green]pmac: Copy and paste this text and use it as the PR "
+        + "description.[/green]"
+    )
+    console.print()
+    console.print("Update dependencies. This covers:")
+    console.print()
+    for line in stdout:
+        # Remove any whitespace and drop the commit sha at the beginning
+        line = line.strip().split(" ", 1)[1]
+        console.print(f"* {line}")
 
 
 @pmac_cli.command(name="listprs")
 @click.pass_context
-def pmac_listprs():
+def pmac_listprs(ctx):
     """List available PRs for the project."""
+    console = Console()
+
     config = get_config()
 
     github_user = config["github_user"]
@@ -274,4 +297,4 @@ def pmac_listprs():
     url = f"{GITHUB_API}repos/{github_user}/{github_project}/pulls?base={main_branch}"
     resp = fetch(url, api_token=api_token)
     for pr in resp:
-        print(f"{pr['number']} {pr['title']}")
+        console.print(f"{pr['number']}  {pr['title']}")
