@@ -23,18 +23,6 @@ def get_file(fn):
 
 
 INSTALL_REQUIRES = []
-EXTRAS_REQUIRE = {
-    # NOTE(willkg): We pin these because we want to know what we're testing
-    # and building with. Use "make checkrot" to figure out what to update.
-    "dev": [
-        "black==22.3.0",
-        "check-manifest==0.48",
-        "flake8==4.0.1",
-        "tox==3.24.5",
-        "tox-gh-actions==2.9.1",
-        "twine==3.8.0",
-    ]
-}
 
 setup(
     name="paul-mclendahand",
@@ -45,7 +33,6 @@ setup(
     author_email="willkg@mozilla.com",
     url="https://github.com/willkg/paul-mclendahanad",
     install_requires=INSTALL_REQUIRES,
-    extras_require=EXTRAS_REQUIRE,
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     include_package_data=True,
