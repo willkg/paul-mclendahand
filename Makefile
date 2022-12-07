@@ -20,7 +20,7 @@ clean:  ## Clean build artifacts
 .PHONY: lint
 lint:  ## Lint and black reformat files
 	black --target-version=py37 src setup.py
-	flake8 src
+	tox -e py37-lint
 
 .PHONY: checkrot
 checkrot:  ## Check package rot for dev dependencies
