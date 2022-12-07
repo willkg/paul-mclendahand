@@ -29,3 +29,7 @@ checkrot:  ## Check package rot for dev dependencies
 	./tmpvenv/bin/pip install '.[dev]'
 	./tmpvenv/bin/pip list -o
 	rm -rf ./tmpvenv/
+
+.PHONY: docs
+docs:  ## Regenerate README
+	cog -r README.rst

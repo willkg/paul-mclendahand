@@ -65,6 +65,7 @@ For example::
    If you find pmac stops working because it's getting rate-limited by GitHub,
    you should use a personal access token.
 
+
 Using pmac
 ----------
 
@@ -100,6 +101,122 @@ After you've configured git, then you can use ``pmac`` like this:
    ``pmac`` can help with the PR description::
 
        pmac prmsg
+
+
+pmac
+----
+
+.. [[[cog
+    from paul_mclendahand.cmd_pmac import pmac_cli
+    from click.testing import CliRunner
+    result = CliRunner().invoke(pmac_cli, ["--help"])
+    cog.out("::\n\n")
+    for line in result.output.splitlines():
+        if line.strip():
+            cog.out(f"   {line}\n")
+        else:
+            cog.out("\n")
+   ]]]
+::
+
+   Usage: pmac [OPTIONS] COMMAND [ARGS]...
+
+     GitHub pull request combiner tool.
+
+     pmac uses a "[tool:paul-mclendahand]" section in setup.cfg to set
+     configuration variables. You can override these using PMAC_VARNAME environment
+     variables.
+
+     Additionally, if you want to use a GitHub personal access token, you need to
+     provide the "PMAC_GITHUB_API_TOKEN" variable in the environment set to the
+     token.
+
+     For issues, see: https://github.com/willkg/paul-mclendahand/issues
+
+   Options:
+     --version  Show the version and exit.
+     --help     Show this message and exit.
+
+   Commands:
+     add      Combine specified PRs into this branch.
+     listprs  List available PRs for the project.
+     prmsg    Print out summary of commits suitable for a PR msg.
+.. [[[end]]]
+
+
+pmac listprs
+------------
+
+.. [[[cog
+    from paul_mclendahand.cmd_pmac import pmac_cli
+    from click.testing import CliRunner
+    result = CliRunner().invoke(pmac_cli, ["listprs", "--help"])
+    cog.out("::\n\n")
+    for line in result.output.splitlines():
+        if line.strip():
+            cog.out(f"   {line}\n")
+        else:
+            cog.out("\n")
+   ]]]
+::
+
+   Usage: pmac listprs [OPTIONS]
+
+     List available PRs for the project.
+
+   Options:
+     --help  Show this message and exit.
+.. [[[end]]]
+
+
+pmac add
+--------
+
+.. [[[cog
+    from paul_mclendahand.cmd_pmac import pmac_cli
+    from click.testing import CliRunner
+    result = CliRunner().invoke(pmac_cli, ["add", "--help"])
+    cog.out("::\n\n")
+    for line in result.output.splitlines():
+        if line.strip():
+            cog.out(f"   {line}\n")
+        else:
+            cog.out("\n")
+   ]]]
+::
+
+   Usage: pmac add [OPTIONS] PR
+
+     Combine specified PRs into this branch.
+
+   Options:
+     --help  Show this message and exit.
+.. [[[end]]]
+
+
+pmac prmsg
+----------
+
+.. [[[cog
+    from paul_mclendahand.cmd_pmac import pmac_cli
+    from click.testing import CliRunner
+    result = CliRunner().invoke(pmac_cli, ["prmsg", "--help"])
+    cog.out("::\n\n")
+    for line in result.output.splitlines():
+        if line.strip():
+            cog.out(f"   {line}\n")
+        else:
+            cog.out("\n")
+   ]]]
+::
+
+   Usage: pmac prmsg [OPTIONS]
+
+     Print out summary of commits suitable for a PR msg.
+
+   Options:
+     --help  Show this message and exit.
+.. [[[end]]]
 
 
 Why does this project exist?
