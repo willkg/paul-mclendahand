@@ -5,16 +5,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 
-import os
-import re
 from setuptools import find_packages, setup
-
-
-def get_version():
-    fn = os.path.join("src", "paul_mclendahand", "__init__.py")
-    vsre = r"""^__version__ = ['"]([^'"]*)['"]"""
-    version_file = open(fn, "rt").read()
-    return re.search(vsre, version_file, re.M).group(1)
 
 
 def get_file(fn):
@@ -22,11 +13,15 @@ def get_file(fn):
         return fp.read()
 
 
-INSTALL_REQUIRES = []
+INSTALL_REQUIRES = [
+    "click<9.0.0",
+    "importlib_metadata",
+]
+
 
 setup(
     name="paul-mclendahand",
-    version=get_version(),
+    version="2.1.0",
     description="Tool for combining GitHub pull requests.",
     long_description=(get_file("README.rst") + "\n\n" + get_file("HISTORY.rst")),
     author="Will Kahn-Greene",
@@ -41,7 +36,7 @@ setup(
     keywords="github pr",
     entry_points="""
     [console_scripts]
-    pmac=paul_mclendahand.cmd_pmac:main
+    pmac=paul_mclendahand.cmd_pmac:pmac_cli
     """,
     classifiers=[
         "Development Status :: 5 - Production/Stable",

@@ -2,34 +2,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import argparse
 import configparser
 import json
 import os
 import subprocess
-import sys
 from urllib.request import Request, urlopen
 
-from paul_mclendahand import __releasedate__, __version__
+import click
 
-HELP_TEXT = """\
-GitHub pull request combiner tool.
+from paul_mclendahand import __version__
 
-pmac uses a "[tool:paul-mclendahand]" section in setup.cfg to set configuration
-variables. You can override these using PMAC_VARNAME environment variables.
-
-Additionally, if you want to use a GitHub personal access token, you need to
-provide the "PMAC_GITHUB_API_TOKEN" variable in the environment set to the
-token.
-
-See https://github.com/willkg/paul-mclendahand for details.
-"""
-
-EPILOG_TEXT = f"""\
-For issues, see: https://github.com/willkg/paul-mclendahand/issues
-
-Version: {__version__} ({__releasedate__})
-"""
 
 GITHUB_API = "https://api.github.com/"
 
@@ -45,7 +27,7 @@ OPTIONAL_CONFIG = ["github_api_token"]
 COMMIT_MESSAGE_FILE = "CMTMSG"
 
 
-def get_config(args):
+def get_config():
     """Generates configuration.
 
     This tries to pull from the ``[tool:paul-mclendahand]`` section of a
@@ -69,7 +51,9 @@ def get_config(args):
                 if key == "github_api_token":
                     # We don't let people set the api token in the setup.cfg
                     # file which gets checked in
-                    continue
+                    raise click.ClickException(
+                        "You shouldn't set github_api_token in setup.cfg."
+                    )
                 my_config[key] = config.get(key, "")
 
     # Override with environment variables
@@ -77,10 +61,10 @@ def get_config(args):
         if "PMAC_%s" % key.upper() in os.environ:
             my_config[key] = os.environ["PMAC_%s" % key.upper()]
 
-    # Override with command line arguments
-    for key in my_config.keys():
-        if getattr(args, key, ""):
-            my_config[key] = getattr(args, key)
+    # Check for missing configuration
+    for key, val in my_config.items():
+        if key not in OPTIONAL_CONFIG and not val:
+            raise click.ClickException(f"Configuration '{key}' not set.")
 
     return my_config
 
@@ -124,16 +108,39 @@ def is_am_in_progress():
     return os.path.exists(path)
 
 
-def subcommand_add(config, args):
-    prs = args.pr
+@click.group()
+@click.version_option(version=__version__)
+def pmac_cli():
+    """GitHub pull request combiner tool.
+
+    pmac uses a "[tool:paul-mclendahand]" section in setup.cfg to set configuration
+    variables. You can override these using PMAC_VARNAME environment variables.
+
+    Additionally, if you want to use a GitHub personal access token, you need to
+    provide the "PMAC_GITHUB_API_TOKEN" variable in the environment set to the
+    token.
+
+    For issues, see: https://github.com/willkg/paul-mclendahand/issues
+
+    """
+    pass
+
+
+@pmac_cli.command(name="add")
+@click.argument("pr")
+@click.pass_context
+def pmac_add(ctx, pr):
+    """Combine specified PRs into this branch."""
+    # FIXME(pass in args)
+    config = get_config()
 
     github_user = config["github_user"]
     github_project = config["github_project"]
     main_branch = config["main_branch"]
     api_token = config["github_api_token"]
 
-    for pr_index, pr in enumerate(prs):
-        print(">>> pmac: Working on pr %s (%s/%s)..." % (pr, pr_index + 1, len(prs)))
+    for pr_index, this_pr in enumerate(pr):
+        print(f">>> pmac: Working on pr {this_pr} ({pr_index+1}/{len(pr)}")
 
         # Get the commits for that PR
         url = f"{GITHUB_API}repos/{github_user}/{github_project}/pulls/{pr}/commits"
@@ -232,7 +239,12 @@ def subcommand_add(config, args):
     print(">>> pmac: Done.")
 
 
-def subcommand_prmsg(config, args):
+@pmac_cli.command(name="prmsg")
+@click.pass_context
+def pmac_prmsg(ctx):
+    """Print out summary of commits suitable for a PR msg."""
+    config = get_config()
+
     main_branch = config["main_branch"]
     ret = run_cmd(["git", "log", "--oneline", "%s..HEAD" % main_branch])
 
@@ -248,7 +260,12 @@ def subcommand_prmsg(config, args):
         print('There are no new commits in this branch. Use "pmac add" to add some.')
 
 
-def subcommand_listprs(config, args):
+@pmac_cli.command(name="listprs")
+@click.pass_context
+def pmac_listprs():
+    """List available PRs for the project."""
+    config = get_config()
+
     github_user = config["github_user"]
     github_project = config["github_project"]
     main_branch = config["main_branch"]
@@ -257,50 +274,4 @@ def subcommand_listprs(config, args):
     url = f"{GITHUB_API}repos/{github_user}/{github_project}/pulls?base={main_branch}"
     resp = fetch(url, api_token=api_token)
     for pr in resp:
-        print("%s %s" % (pr["number"], pr["title"]))
-
-
-def main(argv=None):
-    argv = argv or sys.argv[1:]
-
-    parser = argparse.ArgumentParser(
-        description=HELP_TEXT,
-        epilog=EPILOG_TEXT,
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-    )
-    subparsers = parser.add_subparsers(dest="cmd", help="Sub-command")
-    subparsers.required = True
-
-    # Create parser for "add" command
-    parser_add = subparsers.add_parser(
-        "add", help="combine specified PRs into this branch"
-    )
-    parser_add.add_argument("pr", nargs="+", help="PR to combine")
-
-    # Create parser for "prmsg" command
-    subparsers.add_parser("prmsg", help="print out a PR summary")
-
-    # Create parser for "list" command
-    subparsers.add_parser("listprs", help="list available PRs for project")
-
-    parsed = parser.parse_args(argv)
-    config = get_config(args=parsed)
-
-    # Assert configuration
-    for key, val in config.items():
-        if key not in OPTIONAL_CONFIG and not val:
-            raise Exception(f"Configuration '{key}' not set.")
-
-    if parsed.cmd == "add":
-        return subcommand_add(config, parsed)
-    elif parsed.cmd == "prmsg":
-        return subcommand_prmsg(config, parsed)
-    elif parsed.cmd == "listprs":
-        return subcommand_listprs(config, parsed)
-    else:
-        parser.print_help()
-        return 1
-
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
+        print(f"{pr['number']} {pr['title']}")

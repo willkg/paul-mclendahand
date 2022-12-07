@@ -3,12 +3,15 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 
-"""paul-mclendahand helps with combining GitHub pull requests"""
+# NOTE(willkg): we're using the backfill library until we can drop support for
+# Python 3.7.
+from importlib_metadata import (
+    version as importlib_version,
+    PackageNotFoundError,
+)
 
-__author__ = "Will Kahn-Greene"
-__email__ = "willkg@mozilla.com"
 
-# yyyymmdd
-__releasedate__ = "20220207"
-# x.y.z or x.y.z.dev0
-__version__ = "2.1.0"
+try:
+    __version__ = importlib_version("pmac-mclendahand")
+except PackageNotFoundError:
+    __version__ = "unknown"
