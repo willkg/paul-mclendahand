@@ -10,6 +10,7 @@ from urllib.request import Request, urlopen
 
 import click
 from rich.console import Console
+from rich.table import Table
 
 from paul_mclendahand import __version__
 
@@ -281,11 +282,50 @@ def pmac_prmsg(ctx):
         console.print(f"* {line}")
 
 
+COLOR_TO_NAME = {
+    "B60205": "white on red",
+    "E99695": "white on red",
+    "D93F0B": "white on red",
+    "F9D0C4": "white on red",
+    "FBCA04": "black on yellow",
+    "FEF2C0": "black on bright_yellow",
+    "0E8A16": "white on green",
+    "C2E0C6": "white on green",
+    "168700": "white on green",
+    "006B75": "white on cyan",
+    "BFDADC": "black on bright_cyan",
+    "21CEFF": "black on bright_cyan",
+    "1D76DB": "white on blue",
+    "C5DEF5": "black on bright_blue",
+    "0052CC": "white on blue",
+    "0366D6": "white on blue",
+    "2B67C6": "white on blue",
+    "BFD4F2": "black on bright_blue",
+    "5319E7": "white on magenta",
+    # FIXME(willkg): there are probably other colors
+}
+
+
+def style_label(label_data):
+    label_color = label_data.get("color", "").upper()
+    style = COLOR_TO_NAME.get(label_color, "bold")
+    return f"[{style}]{label_data['name']}[/{style}]"
+
+
 @pmac_cli.command(name="listprs")
+@click.option("--labels/--no-labels", "show_labels", default=False, help="List labels")
+@click.option(
+    "--format", "format_", default="table", type=click.Choice(["table", "tab"])
+)
 @click.pass_context
-def pmac_listprs(ctx):
+def pmac_listprs(ctx, show_labels, format_):
     """List available PRs for the project."""
     console = Console()
+
+    if not console.is_terminal:
+        # If stdout is not a terminal, then use tab by default. This is
+        # more script-friendly.
+        format_ = "tab"
 
     config = get_config()
 
@@ -296,5 +336,28 @@ def pmac_listprs(ctx):
 
     url = f"{GITHUB_API}repos/{github_user}/{github_project}/pulls?base={main_branch}"
     resp = fetch(url, api_token=api_token)
-    for pr in resp:
-        console.print(f"{pr['number']}  {pr['title']}")
+
+    if format_ == "table":
+        table = Table()
+        table.add_column("pr", justify="left")
+        table.add_column("title", justify="left")
+        if show_labels:
+            table.add_column("labels", justify="left")
+
+        for pr in resp:
+            row = [str(pr["number"]), pr["title"]]
+            if show_labels:
+                labels = sorted(pr["labels"], key=lambda label: label["name"])
+                row.append(" ".join([style_label(label) for label in labels]))
+
+            table.add_row(*row)
+
+        console.print(table)
+
+    elif format_ == "tab":
+        for pr in resp:
+            row = [str(pr["number"]), pr["title"]]
+            if show_labels:
+                labels = sorted(pr["labels"], key=lambda label: label["name"])
+                row.append(" ".join([style_label(label) for label in labels]))
+            console.print("\t".join(row))
