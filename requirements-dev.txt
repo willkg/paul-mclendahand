@@ -5,6 +5,7 @@ build==0.9.0
 check-manifest==0.49
 flake8==5.0.4
 pytest==7.2.0
+rich==12.6.0
 tox==3.27.1
 tox-gh-actions==2.11.0
 twine==4.0.2
