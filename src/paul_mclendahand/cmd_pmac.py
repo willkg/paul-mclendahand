@@ -108,7 +108,7 @@ def is_am_in_progress():
     return os.path.exists(path)
 
 
-@click.group()
+@click.group(name="pmac")
 @click.version_option(version=__version__)
 def pmac_cli():
     """GitHub pull request combiner tool.
