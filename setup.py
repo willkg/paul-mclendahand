@@ -16,6 +16,7 @@ def get_file(fn):
 INSTALL_REQUIRES = [
     "click<9.0.0",
     "importlib_metadata",
+    "rich",
 ]
 
 
