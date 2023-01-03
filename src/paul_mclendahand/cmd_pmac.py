@@ -226,7 +226,7 @@ def pmac_add(ctx, pr):
                 )
                 continue
 
-            data[0] = f"{firstline} (from PR {this_pr})"
+            data[0] = f"{firstline} (from PR #{this_pr})"
             try:
                 with open(COMMIT_MESSAGE_FILE, "w") as fp:
                     fp.write("\n".join(data))
