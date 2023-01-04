@@ -110,13 +110,16 @@ pmac
     from paul_mclendahand.cmd_pmac import pmac_cli
     from click.testing import CliRunner
     result = CliRunner().invoke(pmac_cli, ["--help"])
+    cog.out("\n")
     cog.out("::\n\n")
     for line in result.output.splitlines():
         if line.strip():
             cog.out(f"   {line}\n")
         else:
             cog.out("\n")
+    cog.out("\n")
    ]]]
+
 ::
 
    Usage: pmac [OPTIONS] COMMAND [ARGS]...
@@ -141,6 +144,7 @@ pmac
      add      Combine specified PRs into this branch.
      listprs  List available PRs for the project.
      prmsg    Print out summary of commits suitable for a PR msg.
+
 .. [[[end]]]
 
 
@@ -151,13 +155,16 @@ pmac listprs
     from paul_mclendahand.cmd_pmac import pmac_cli
     from click.testing import CliRunner
     result = CliRunner().invoke(pmac_cli, ["listprs", "--help"])
+    cog.out("\n")
     cog.out("::\n\n")
     for line in result.output.splitlines():
         if line.strip():
             cog.out(f"   {line}\n")
         else:
             cog.out("\n")
+    cog.out("\n")
    ]]]
+
 ::
 
    Usage: pmac listprs [OPTIONS]
@@ -168,6 +175,7 @@ pmac listprs
      --labels / --no-labels  List labels
      --format [table|tab]
      --help                  Show this message and exit.
+
 .. [[[end]]]
 
 
@@ -178,13 +186,16 @@ pmac add
     from paul_mclendahand.cmd_pmac import pmac_cli
     from click.testing import CliRunner
     result = CliRunner().invoke(pmac_cli, ["add", "--help"])
+    cog.out("\n")
     cog.out("::\n\n")
     for line in result.output.splitlines():
         if line.strip():
             cog.out(f"   {line}\n")
         else:
             cog.out("\n")
+    cog.out("\n")
    ]]]
+
 ::
 
    Usage: pmac add [OPTIONS] PR...
@@ -193,6 +204,7 @@ pmac add
 
    Options:
      --help  Show this message and exit.
+
 .. [[[end]]]
 
 
@@ -203,13 +215,16 @@ pmac prmsg
     from paul_mclendahand.cmd_pmac import pmac_cli
     from click.testing import CliRunner
     result = CliRunner().invoke(pmac_cli, ["prmsg", "--help"])
+    cog.out("\n")
     cog.out("::\n\n")
     for line in result.output.splitlines():
         if line.strip():
             cog.out(f"   {line}\n")
         else:
             cog.out("\n")
+    cog.out("\n")
    ]]]
+
 ::
 
    Usage: pmac prmsg [OPTIONS]
@@ -218,6 +233,7 @@ pmac prmsg
 
    Options:
      --help  Show this message and exit.
+
 .. [[[end]]]
 
 
