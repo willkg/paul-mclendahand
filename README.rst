@@ -165,7 +165,9 @@ pmac listprs
      List available PRs for the project.
 
    Options:
-     --help  Show this message and exit.
+     --labels / --no-labels  List labels
+     --format [table|tab]
+     --help                  Show this message and exit.
 .. [[[end]]]
 
 
@@ -185,7 +187,7 @@ pmac add
    ]]]
 ::
 
-   Usage: pmac add [OPTIONS] PR
+   Usage: pmac add [OPTIONS] PR...
 
      Combine specified PRs into this branch.
 
