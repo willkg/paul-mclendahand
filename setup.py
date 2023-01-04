@@ -22,7 +22,7 @@ INSTALL_REQUIRES = [
 
 setup(
     name="paul-mclendahand",
-    version="2.1.0",
+    version="3.0.0",
     description="Tool for combining GitHub pull requests.",
     long_description=(get_file("README.rst") + "\n\n" + get_file("HISTORY.rst")),
     author="Will Kahn-Greene",

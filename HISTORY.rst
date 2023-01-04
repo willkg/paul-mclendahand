@@ -1,6 +1,26 @@
 History
 =======
 
+3.0.0 (January 4th, 2023)
+-------------------------
+
+NEW FEATURES:
+
+* Add support for Python 3.11. (#32)
+
+* Add ``--labels`` flag to ``listprs`` to show pull request labels. (#29)
+
+
+OTHER THINGS:
+
+* Rewrote command line interface using `click
+  <https://pypi.org/project/click/>`__ and `rich
+  <https://pypi.org/project/rich/>`__. Output is a lot nicer. Instructions for
+  handling conflicts when combining PRs are clearer. (#36)
+
+* Add command-line help to README. (#35)
+
+
 2.1.0 (February 7th, 2022)
 --------------------------
 
