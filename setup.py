@@ -25,6 +25,7 @@ setup(
     version="3.0.0",
     description="Tool for combining GitHub pull requests.",
     long_description=(get_file("README.rst") + "\n\n" + get_file("HISTORY.rst")),
+    long_description_content_type="text/x-rst",
     author="Will Kahn-Greene",
     author_email="willkg@mozilla.com",
     url="https://github.com/willkg/paul-mclendahanad",
