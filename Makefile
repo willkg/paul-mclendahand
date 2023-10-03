@@ -20,7 +20,7 @@ clean:  ## Clean build artifacts
 .PHONY: lint
 lint:  ## Lint and black reformat files
 	black src setup.py tests
-	tox -e py37-lint
+	tox -e py38-lint
 
 .PHONY: checkrot
 checkrot:  ## Check package rot for dev dependencies
