@@ -24,4 +24,4 @@ lint:  ## Lint and black reformat files
 
 .PHONY: docs
 docs:  ## Regenerate README
-	cog -r README.rst
+	tox exec -e py38 -- cog -r README.rst
