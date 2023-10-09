@@ -6,7 +6,7 @@ History
 
 NEW FEATURES:
 
-* Add support for ``pyproject.toml`` files. (#45)
+* Add support for putting configuration in ``pyproject.toml`` files. (#45)
 
 * Add support for Python 3.12. (#49)
 
