@@ -1,6 +1,16 @@
 History
 =======
 
+3.1.0 (October 9th, 2023)
+-------------------------
+
+NEW FEATURES:
+
+* Add support for ``pyproject.toml`` files. (#45)
+
+* Add support for Python 3.12. (#49)
+
+
 3.0.0 (January 4th, 2023)
 -------------------------
 
