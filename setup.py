@@ -17,6 +17,7 @@ INSTALL_REQUIRES = [
     "click<9.0.0",
     "importlib_metadata",
     "rich",
+    "tomli>=1.1.0; python_version < '3.11'",
 ]
 
 

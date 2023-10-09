@@ -38,14 +38,21 @@ Configure pmac
 
 pmac needs to know the GitHub user and GitHub project.
 
-You can set configuration in the ``setup.cfg`` file::
+You can set configuration in the ``pyproject.toml`` file::
+
+   [tool.paul-mclendahand]
+   github_user = "user"
+   github_project = "project"
+   main_branch = "git-main-branch-name"
+
+Or you can set configuration in the ``setup.cfg`` file::
 
    [tool:paul-mclendahand]
    github_user=user
    github_project=project
    main_branch=git-main-branch-name
 
-You can override the ``setup.cfg`` variables with environment variables::
+You can override the configuration variables with environment variables::
 
    PMAC_GITHUB_USER=user
    PMAC_GITHUB_PROJECT=project
