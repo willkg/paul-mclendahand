@@ -1,3 +1,57 @@
+[project]
+name = "paul-mclendahand"
+description = "Tool for combining GitHub pull requests."
+version = "3.0.0"
+readme = "README.rst"
+keywords = ["github", "pr"]
+authors = [{name = "Will Kahn-Greene"}]
+license = {text = "MPLv2"}
+requires-python = ">=3.8"
+dependencies = [
+    "click",
+    "importlib_metadata",
+    "rich",
+    "tomli>=1.1.0; python_version < '3.11'",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+urls.Homepage = "https://github.com/willkg/paul-mclendahanad"
+urls.Source = "https://github.com/willkg/paul-mclendahanad"
+urls.Issues = "https://github.com/willkg/paul-mclendahanad/issues"
+
+[project.scripts]
+pmac = "paul_mclendahand.cmd_pmac:pmac_cli"
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "build",
+    "check-manifest",
+    "cogapp",
+    "pytest",
+    "ruff",
+    "setuptools",
+    "twine",
+    "tox",
+    "tox-gh-actions",
+]
+
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+
 [tool.ruff]
 # Enable pycodestyle (E), pyflakes (F), and bugbear (B) rules
 select = ["E", "F", "B"]
@@ -22,6 +76,7 @@ target-version = ["py38"]
 [tool.tox]
 legacy_tox_ini = """
 [tox]
+isolated_build = True
 envlist =
     py38
     py38-lint
@@ -39,14 +94,13 @@ python =
     3.12: py312
 
 [testenv]
-deps = -rrequirements-dev.txt
-commands =
-    pytest {posargs}
+extras = dev
+commands = pytest {posargs}
 
 [testenv:py38-lint]
 basepython = python3.8
 changedir = {toxinidir}
 commands =
-    black --check src setup.py tests
-    ruff src setup.py tests
+    black --diff src tests
+    ruff src tests
 """
