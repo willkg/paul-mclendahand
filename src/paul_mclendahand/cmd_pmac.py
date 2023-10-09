@@ -6,9 +6,11 @@ import configparser
 import json
 import os
 import subprocess
+import sys
 from urllib.request import Request, urlopen
 
 import click
+from rich import box
 from rich.console import Console
 from rich.table import Table
 
@@ -32,9 +34,12 @@ COMMIT_MESSAGE_FILE = "CMTMSG"
 def get_config():
     """Generates configuration.
 
-    This tries to pull from the ``[tool:paul-mclendahand]`` section of a
-    ``setup.cfg`` in the working directory. If that doesn't exist, then it uses
-    defaults.
+    This tries to pull configuration from:
+
+    1. the ``[tool.paul-mclendahand]`` table from a ``pyproject.toml`` file, OR
+    2. the ``[tool:paul-mclendahand]`` section from a ``setup.cfg`` file
+
+    If neither exist, then it uses defaults.
 
     :returns: configuration dict
 
@@ -42,23 +47,44 @@ def get_config():
     # Start with defaults
     my_config = dict(DEFAULT_CONFIG)
 
-    # Override with values from config file
-    if os.path.exists("setup.cfg"):
+    # Override with values from pyproject.toml OR setup.cfg
+    if os.path.exists("pyproject.toml"):
+        if sys.version_info >= (3, 11):
+            import tomllib
+        else:
+            import tomli as tomllib
+
+        with open("pyproject.toml", "rb") as fp:
+            data = tomllib.load(fp)
+
+        config_data = data.get("tool", {}).get("paul-mclendahand", {})
+        if config_data:
+            for key in my_config.keys():
+                if key in config_data:
+                    if key == "github_api_token":
+                        # We don't let people set the api token in the setup.cfg
+                        # file which gets checked in
+                        raise click.ClickException(
+                            f"You shouldn't set {key} in pyproject.toml."
+                        )
+
+                    my_config[key] = config_data[key]
+
+    elif os.path.exists("setup.cfg"):
         config = configparser.ConfigParser()
         config.read("setup.cfg")
 
         if "tool:paul-mclendahand" in config:
             config = config["tool:paul-mclendahand"]
             for key in my_config.keys():
-                if key == "github_api_token":
-                    if key in config:
+                if key in config:
+                    if key == "github_api_token":
                         # We don't let people set the api token in the setup.cfg
                         # file which gets checked in
                         raise click.ClickException(
-                            "You shouldn't set github_api_token in setup.cfg."
+                            f"You shouldn't set {key} in setup.cfg."
                         )
-                else:
-                    my_config[key] = config.get(key, "")
+                    my_config[key] = config[key]
 
     # Override with environment variables
     for key in my_config.keys():
@@ -338,7 +364,7 @@ def pmac_listprs(ctx, show_labels, format_):
     resp = fetch(url, api_token=api_token)
 
     if format_ == "table":
-        table = Table()
+        table = Table(box=box.MARKDOWN)
         table.add_column("pr", justify="left")
         table.add_column("title", justify="left")
         if show_labels:
