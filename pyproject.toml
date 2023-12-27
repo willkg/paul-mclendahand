@@ -34,7 +34,6 @@ pmac = "paul_mclendahand.cmd_pmac:pmac_cli"
 
 [project.optional-dependencies]
 dev = [
-    "black",
     "build",
     "check-manifest",
     "cogapp",
@@ -101,6 +100,6 @@ commands = pytest {posargs}
 basepython = python3.8
 changedir = {toxinidir}
 commands =
-    black --diff src tests
-    ruff src tests
+    ruff format --check src tests
+    ruff check src tests
 """
