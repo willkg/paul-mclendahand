@@ -67,11 +67,6 @@ src = ["src", "tests"]
 docstring-quotes = "double"
 
 
-[tool.black]
-line-length = 88
-target-version = ["py38"]
-
-
 [tool.tox]
 legacy_tox_ini = """
 [tox]
