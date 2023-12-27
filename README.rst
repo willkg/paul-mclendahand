@@ -27,7 +27,7 @@ With pip from GitHub main branch::
 
 With pip from a clone of the repository with dev dependencies::
 
-    pip install -r requirements-dev.txt
+    pip install -e '.[dev]'
 
     
 Quick start
