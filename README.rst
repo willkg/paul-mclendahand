@@ -73,6 +73,24 @@ For example::
    you should use a personal access token.
 
 
+Configure git
+-------------
+
+When cherry-picking commits, ``pmac`` sometimes causes Git to push you
+to resolve the same issue multiple times. For this reason, we encourage
+you to set ``rerere.enabled`` to ``true``.
+
+Globally::
+
+    $ git config --global rerere.enabled true
+
+Local to the git repository you're in::
+
+    $ git config rerere.enabled true
+
+git will keep track of resolutions and re-apply them.
+
+
 Using pmac
 ----------
 
