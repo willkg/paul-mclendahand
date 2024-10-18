@@ -12,6 +12,8 @@ OTHER THINGS:
 
 * Switch from pip/pipx/make to uv/just. (#74)
 
+* Drop support for Python 3.8. (#77)
+
 
 3.1.0 (October 9th, 2023)
 -------------------------
