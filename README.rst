@@ -13,22 +13,14 @@ Tool for combining GitHub pull requests.
 Install
 =======
 
-(Recommended) With `pipx <https://pypi.org/project/pipx/>`_::
+(Recommended) With `uv <https://docs.astral.sh/uv/>`__::
 
-    pipx install paul-mclendahand
+    uv tool install paul-mclendahand
 
 With pip from PyPI::
 
     pip install paul-mclendahand
     
-With pip from GitHub main branch::
-
-    pip install https://github.com/willkg/paul-mclendahand/archive/main.zip
-
-With pip from a clone of the repository with dev dependencies::
-
-    pip install -e '.[dev]'
-
     
 Quick start
 ===========

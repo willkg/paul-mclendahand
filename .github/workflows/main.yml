@@ -33,4 +33,4 @@ jobs:
           pip install '.[dev]'
 
       - name: Test and lint
-        run: make test
+        run: tox
