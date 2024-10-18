@@ -1,6 +1,18 @@
 History
 =======
 
+3.2.0 (in development)
+----------------------
+
+NEW FEATURES:
+
+* Add support for Python 3.13. (#75)
+
+OTHER THINGS:
+
+* Switch from pip/pipx/make to uv/just. (#74)
+
+
 3.1.0 (October 9th, 2023)
 -------------------------
 

@@ -24,6 +24,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 urls.Homepage = "https://github.com/willkg/paul-mclendahanad"
 urls.Source = "https://github.com/willkg/paul-mclendahanad"
@@ -78,6 +79,7 @@ envlist =
     py310
     py311
     py312
+    py313
 isolated_build = True
 uv_python_preference = only_managed
 
@@ -88,6 +90,7 @@ python =
     3.10: py310
     3.11: py311
     3.12: py312
+    3.13: py313
 
 [testenv]
 extras = dev
