@@ -35,7 +35,6 @@ pmac = "paul_mclendahand.cmd_pmac:pmac_cli"
 [project.optional-dependencies]
 dev = [
     "build",
-    "check-manifest",
     "cogapp",
     "pytest",
     "ruff",
@@ -48,7 +47,7 @@ dev = [
 
 
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 
