@@ -1,7 +1,7 @@
 [project]
 name = "paul-mclendahand"
 description = "Tool for combining GitHub pull requests."
-version = "3.1.0"
+version = "3.2.0"
 readme = "README.rst"
 keywords = ["github", "pr"]
 authors = [{name = "Will Kahn-Greene"}]
