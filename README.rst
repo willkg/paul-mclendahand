@@ -10,6 +10,12 @@ Tool for combining GitHub pull requests.
 :Documentation: this README
 
 
+Status
+======
+
+2024-12-19: No longer maintained.
+
+
 Install
 =======
 

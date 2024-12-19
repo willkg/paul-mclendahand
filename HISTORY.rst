@@ -1,6 +1,12 @@
 History
 =======
 
+3.2.1 (December 19th, 2024)
+---------------------------
+
+Last release. This project is no longer maintained.
+
+
 3.2.0 (October 29th, 2024)
 --------------------------
 
