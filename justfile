@@ -5,7 +5,7 @@
 devenv:
     uv sync --extra dev --refresh --upgrade
 
-# Wipe devenv and build artifacts
+# Wipe dev environment and build artifacts
 clean:
     rm -rf .venv uv.lock
     rm -rf build dist src/paul_mclendahand.egg-info .tox
